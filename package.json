@@ -1,0 +1,11 @@
+{
+  "devDependencies": {
+    "@types/cors": "^2.8.17",
+    "@types/express": "^5.0.0"
+  },
+  "dependencies": {
+    "@types/mongoose": "^5.11.97",
+    "express": "^4.21.2",
+    "mongoose": "^8.11.0"
+  }
+}

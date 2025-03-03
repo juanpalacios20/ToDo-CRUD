@@ -1,6 +1,7 @@
 import express from "express";
 import cors from "cors";
 import userRoutes from "./routes/userRoutes";
+import taskRoutes from "./routes/taskRoutes";
 import connectDB from "./models/db";
 
 const app = express();
@@ -16,6 +17,7 @@ app.get("/", (req, res) => {
 
 // Configurar rutas
 app.use("/api/users", userRoutes);
+app.use("/api/tasks", taskRoutes);
 
 // Iniciar el servidor
 const PORT = process.env.PORT || 5000;

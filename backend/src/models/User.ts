@@ -10,6 +10,7 @@ export interface IUser extends Document {
   password: string;
   state: boolean;
   createdAt: Date;
+  tasks: mongoose.Types.ObjectId[];
 }
 
 // Esquema del modelo usuario
@@ -22,6 +23,7 @@ const UserSchema = new Schema<IUser>(
     phone: { type: String, required: true },
     password: { type: String, required: true },
     state: { type: Boolean, default: true },
+    tasks: [{ type: mongoose.Schema.Types.ObjectId, ref: "Task" }]
   },
   { timestamps: true }
 );

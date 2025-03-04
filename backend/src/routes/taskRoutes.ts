@@ -1,14 +1,15 @@
 import { Router } from 'express';
 import * as taskController from '../controllers/taskController';
+import { authenticateUser } from '../middleware/authMiddleware';
 
 const taskRoutes = Router();
 
-taskRoutes.get('/', taskController.getTasks);
-taskRoutes.get('/:id', taskController.getTask);
-taskRoutes.post('/', taskController.createTask);
-taskRoutes.patch('/:id', taskController.updateTask);
-taskRoutes.delete('/:id', taskController.deleteTask);
-taskRoutes.patch('/complete/:id', taskController.completeTask);
-taskRoutes.patch('/incomplete/:id', taskController.incompleteTask);
+taskRoutes.get('/', authenticateUser ,taskController.getTasks);
+taskRoutes.get('/:id', authenticateUser ,taskController.getTask);
+taskRoutes.post('/', authenticateUser ,taskController.createTask);
+taskRoutes.patch('/:id', authenticateUser ,taskController.updateTask);
+taskRoutes.delete('/:id', authenticateUser ,taskController.deleteTask);
+taskRoutes.patch('/complete/:id', authenticateUser ,taskController.completeTask);
+taskRoutes.patch('/incomplete/:id', authenticateUser ,taskController.incompleteTask);
 
 export default taskRoutes;

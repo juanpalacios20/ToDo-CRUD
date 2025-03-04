@@ -4,7 +4,8 @@ import Task from '../models/Task';
 
 export const getTasks = async (req: Request, res: Response): Promise<void> => {
     try {
-        const tasks = await Task.find();
+        const userId = (req as any).user.userId;
+        const tasks = await Task.find({ user: userId }); 
         if (tasks.length === 0) {
             res.status(404).json({ message: 'Tasks not found' });
             return;
@@ -17,7 +18,7 @@ export const getTasks = async (req: Request, res: Response): Promise<void> => {
 
 export const getTask = async (req: Request, res: Response): Promise<void> => {
     try {
-        const { id } = req.params;
+        const { id } = (req as any).user.userId;;
         const task = await Task
             .findById(id)
             .populate('user', 'username');
@@ -33,7 +34,8 @@ export const getTask = async (req: Request, res: Response): Promise<void> => {
 
 export const createTask = async (req: Request, res: Response): Promise<void> => {
     try {
-        const { title, description, user_id } = req.body;
+        const user_id = (req as any).user.userId;
+        const { title, description} = req.body;
         if (!title || !description || !user_id) {
             res.status(400).json({ message: 'All fields are required' });
             return;
@@ -55,8 +57,14 @@ export const createTask = async (req: Request, res: Response): Promise<void> => 
 
 export const updateTask = async (req: Request, res: Response): Promise<void> => {
     try {
+        const { userId } = (req as any).user.userId;
         const { id } = req.params;
-        const taskUpdate = await Task.findByIdAndUpdate(id, req.body, { new: true });
+        const { title, description } = req.body;
+        const taskUpdate = await Task.findOneAndUpdate(
+            { _id: id, user: userId }, // Solo actualiza si la tarea pertenece al usuario
+            { title, description },
+            { new: true }
+        );
         if (!taskUpdate) {
             res.status(404).json({ message: 'Task not found' });
             return;
@@ -69,23 +77,27 @@ export const updateTask = async (req: Request, res: Response): Promise<void> => 
 
 export const deleteTask = async (req: Request, res: Response): Promise<void> => {
     try {
+        const userId = (req as any).user.userId;
         const { id } = req.params;
-        const task = await Task.findById(id);
+
+        const task = await Task.findOneAndDelete({ _id: id, user: userId });
+
         if (!task) {
-            res.status(404).json({ message: 'Task not found' });
+            res.status(404).json({ message: 'Tarea no encontrada' });
             return;
         }
-        await Task.findByIdAndDelete(id);
-        res.status(204).send();
+
+        res.json({ message: 'Tarea eliminada correctamente' });
     } catch (error) {
-        res.status(500).json({ message: error instanceof Error ? error.message : 'An unknown error occurred' });
+        res.status(500).json({ message: 'Error al eliminar la tarea' });
     }
 };
 
 export const completeTask = async (req: Request, res: Response): Promise<void> => {
     try {
+        const user_id = (req as any).user.userId;
         const { id } = req.params;
-        const task = await Task.findById(id);
+        const task = await Task.findOne({ _id: id, user: user_id });
         if (!task) {
             res.status(404).json({ message: 'Task not found' });
             return;
@@ -100,8 +112,9 @@ export const completeTask = async (req: Request, res: Response): Promise<void> =
 
 export const incompleteTask = async (req: Request, res: Response): Promise<void> => {
     try {
+        const user_id = (req as any).user.userId;
         const { id } = req.params;
-        const task = await Task.findById(id);
+        const task = await Task.findOne({ _id: id, user: user_id });
         if (!task) {
             res.status(404).json({ message: 'Task not found' });
             return;
